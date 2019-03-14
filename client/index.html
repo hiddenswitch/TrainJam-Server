@@ -1,0 +1,29 @@
+<head>
+    <meta charset="UTF-8">
+    <title>TrainJam Kitchen Tester</title>
+</head>
+
+<body>
+{{> lobbyView}}
+</body>
+
+<template name="lobbyView">
+    {{#with lobby}}
+        <ul>
+            {{#each connections}}
+                <li>{{id}}: {{#if ready}}Ready{{else}}Not Ready{{/if}}</li>
+            {{/each}}
+        </ul>
+        <p>Player Count: {{playerCount}}</p>
+        <p>Ready Count: {{readyCount}}</p>
+        <button id="ready-button">Ready</button>
+        {{#if isStartable}}
+            <button id="start-game-button">Start Game</button>
+        {{/if}}
+    {{/with}}
+</template>
+
+<template name="matchView">
+    {{#with match}}
+    {{/with}}
+</template>

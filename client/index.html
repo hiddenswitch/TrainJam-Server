@@ -5,9 +5,11 @@
 
 <body>
 {{> lobbyView}}
+{{> matchView}}
 </body>
 
 <template name="lobbyView">
+    <h1>Lobby</h1>
     {{#with lobby}}
         <ul>
             {{#each connections}}
@@ -24,6 +26,15 @@
 </template>
 
 <template name="matchView">
-    {{#with match}}
-    {{/with}}
+    <h1>Matches:</h1>
+    <ul>
+        {{#each matches}}
+            <li>{{_id}}</li>
+        {{/each}}
+    </ul>
+    <ul>
+        {{#each entities}}
+            <li>{{_id}}</li>
+        {{/each}}
+    </ul>
 </template>

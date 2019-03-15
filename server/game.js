@@ -1,6 +1,117 @@
 import {_} from "meteor/underscore";
 import {check} from "meteor/check";
 
+// Common stage settings. Stages will
+let stageCommon = {
+  // Amount of time in seconds the players have before the game automatically starts
+  tutorialDuration: 8,
+  // Amount of time in seconds for the round
+  matchDuration: 60 * 4
+};
+
+
+let startingStage = 'stage0';
+let victoryStage = 'victory';
+
+// Game stages
+// Victory is a special stage that indicates thanks for playing!
+let stages = [
+  {
+    stageId: startingStage,
+    matchDuration: 140,
+    playerCount: 2,
+    // Prefabs that correspond to recipes / objects that must be dropped in the delivery point.
+    // The client should show in the tutorial view the necessary tutorialization in the tutorial view
+    // If the order hasn't been fulfilled after warnTime seconds, the client should shake the hamburger order
+    // The order fails after 30s and the players get a demerit (may slow down the game as you underperform)
+    orders: [
+      {item: 'hamburger', insertOrder: 8, warnTime: 12, failTime: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertOrder: 16, warnTime: 12, failTime: 30, playerIds: [0, 1]},
+      {item: 'cheeseburger', insertOrder: 24, warnTime: 12, failTime: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertOrder: 64, warnTime: 12, failTime: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertOrder: 78, warnTime: 12, failTime: 30, playerIds: [0, 1]},
+      {item: 'cheeseburger', insertOrder: 96, warnTime: 12, failTime: 30, playerIds: [0, 1]},
+      {item: 'cheeseburger', insertOrder: 108, warnTime: 12, failTime: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertOrder: 120, warnTime: 12, failTime: 30, playerIds: [0, 1]}
+    ],
+    // The number of orders the players can fail until they lose
+    failsToLose: 4,
+    // The maximum number of orders the players have to deal with in this stage
+    maxOrders: 3,
+    // A "setup" corresponds to the items on the player's map for the specified number of players.
+    assignments: [
+      {
+        items: ['cutting board', 'delivery', 'hamburger buns', 'meat', 'portal 2', 'trash']
+      },
+      {
+        items: ['frying pan', 'delivery', 'tomatoes', 'cheese', 'portal 1', 'trash']
+      }
+    ],
+    // Indicates the next stage after this one is won
+    nextStage: 'stage1'
+  },
+  {
+    stageId: 'stage1',
+    matchDuration: 20,
+    playerCount: 2,
+    orders: [
+      {item: 'cheeseburger', insertOrder: 0, warnTime: 12, failTime: 30},
+      {item: 'cheeseburger', insertOrder: 0, warnTime: 12, failTime: 30},
+      {item: 'cheeseburger', insertOrder: 8, warnTime: 12, failTime: 30},
+    ],
+    // The number of orders the players can fail until they lose
+    failsToLose: 4,
+    // The maximum number of orders the players have to deal with in this stage
+    maxOrders: 3,
+    // A "setup" corresponds to the items on the player's map for the specified number of players.
+    assignments: [
+      {
+        items: ['cutting board', 'delivery', 'hamburger buns', 'meat', 'portal 2', 'trash']
+      },
+      {
+        items: ['frying pan', 'delivery', 'tomatoes', 'cheese', 'portal 1', 'trash']
+      }
+    ],
+    // Indicates the next stage after this one is won
+    nextStage: victoryStage
+  },
+  {
+    stageId: startingStage,
+    playerCount: 3,
+    matchDuration: 140,
+    orders: [
+      {item: 'hamburger', insertOrder: 8, warnTime: 12, failTime: 30},
+      {item: 'hamburger', insertOrder: 16, warnTime: 12, failTime: 30},
+      {item: 'hamburger', insertOrder: 20, warnTime: 12, failTime: 30},
+      {item: 'cheeseburger', insertOrder: 24, warnTime: 12, failTime: 30},
+      {item: 'hamburger', insertOrder: 64, warnTime: 12, failTime: 30},
+      {item: 'hamburger', insertOrder: 78, warnTime: 12, failTime: 30},
+      {item: 'cheeseburger', insertOrder: 96, warnTime: 12, failTime: 30},
+      {item: 'cheeseburger', insertOrder: 96, warnTime: 12, failTime: 30},
+      {item: 'cheeseburger', insertOrder: 108, warnTime: 12, failTime: 30},
+      {item: 'hamburger', insertOrder: 120, warnTime: 12, failTime: 30}
+    ],
+    // The number of orders the players can fail until they lose
+    failsToLose: 3,
+    // The maximum number of orders the players have to deal with in this stage
+    maxOrders: 4,
+    // The time until the next order is queued up
+    timeTillNextOrder: 7,
+    assignments: [
+      {
+        items: ['cutting board', 'hamburger buns', 'meat', 'portal 2', 'portal 3', 'trash']
+      },
+      {
+        items: ['frying pan', 'delivery', 'cheese', 'portal 1', 'portal 3', 'trash']
+      },
+      {
+        items: ['cutting board', 'tomatoes', 'meat', 'portal 1', 'portal 2', 'trash']
+      }
+    ],
+    nextStage: victoryStage
+  }
+];
+
 Meteor.startup(() => {
   if (Lobbies.find({}).count() !== 0) {
     return;
@@ -20,6 +131,8 @@ Meteor.startup(() => {
 Meteor.onConnection((connection) => {
   let connectionId = connection.id;
 
+  Connections.insert({_id: connectionId});
+
   // Join the public lobby by default and await the user to press the ready button
   Lobbies.update({_id: 'public'}, {
     $inc: {playerCount: 1},
@@ -33,15 +146,20 @@ Meteor.onConnection((connection) => {
       $inc: {playerCount: -1},
       $pull: {connections: {id: connectionId}}
     }, {multi: true});
+    Connections.remove({_id: connectionId});
   });
 });
 
-Meteor.publish('lobbies', function () {
-  return Lobbies.find({});
+Meteor.publish('data', function () {
+  let connectionId = this.connection.id;
+  return [
+    Lobbies.find({}),
+    Matches.find({players: connectionId}),
+    Connections.find({_id: connectionId})];
 });
 
-Meteor.publish('matches', function () {
-  return Matches.find({players: this.connection.id});
+Meteor.publish('entities', function (matchId, playerId) {
+  return Entities.find({matchId: matchId, playerIds: playerId});
 });
 
 Meteor.methods({
@@ -94,15 +212,46 @@ Meteor.methods({
 
     // All the ready players who are ready in this lobby will be put into the game.
     let readyPlayers = _.pluck(_.filter(lobby.connections, player => player.ready), 'id');
-    let matchId = Matches.insert({
+    let match = {
       players: readyPlayers,
-      level: 'default',
+      stage: startingStage,
+      playerCount: readyPlayers.length,
       round: 1
+    };
+    let matchId = Matches.insert(match);
+    _.extend(match, {_id: matchId});
+
+    let stage = _.find(stages, s => s.stageId === match.stage && s.playerCount === match.playerCount);
+    // TODO: Create the necessary game entities
+    Entities.insert({
+      _id: matchId + '/timeLeftClock',
+      matchId: matchId,
+      prefab: 'Time Left Clock',
+      playerIds: _.range(0, readyPlayers.length),
+      values: [stage.matchDuration]
     });
 
-    // Create the game timer
-    // Create an in-memory collection corresponding to the objects in each player's screens
-    // Deal with match changes when any players disconnect
+    /*
+    // Set up the order timeline
+    // If the players are at their max orders when we reach the next order item, increment *all* the order time
+    // positions by 1. Otherwise, insert the order entity with visibility to the specified players.
+    let time = 0;
+    // Clone the orders 1 level
+    let ordersTimeline = _.map(stage.orders, _.clone);
+    let ordersPending = [];
+    let thisMatchClock = Meteor.setInterval(function () {
+      time += 1;
+      ordersTimeline = _.sortBy(ordersTimeline, o => o.insertOrder);
+      let eligibleOrders = _.filter(ordersTimeline, o => o.insertOrder <= time);
+      if (Entities.find({matchId:matchId,}) >= stage.maxOrders) {
+        // Shift
+        _.forEach(eligibleOrders, o => o.insertOrder += 2);
+      } else {
+
+      }
+    }, 1000);
+    */
+    // TODO: Deal with match changes when any players disconnect
 
     return matchId;
   }

@@ -19,17 +19,24 @@ Template.lobbyView.events({
 });
 
 Template.matchView.helpers({
-  match: function() {
+  matches: function () {
     // Select the one match that corresponds to me (the only ones I will see)
-    return Matches.findOne({});
+    return Matches.find();
+  },
+  entities: function () {
+    return Entities.find();
   }
 });
 
-Template.matchView.events({
-
-});
-
 Meteor.startup(() => {
-  Meteor.subscribe('matches');
-  Meteor.subscribe('lobbies');
+  Meteor.subscribe('data');
+  let sub = null;
+  Matches.find().observe({
+    added: function (id, doc) {
+      sub = Meteor.subscribe('entities', id, doc.players.indexOf(Connections.findOne()._id));
+    },
+    removed: function(id) {
+      sub.stop();
+    }
+  })
 });

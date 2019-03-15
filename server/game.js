@@ -1,6 +1,11 @@
 import {_} from "meteor/underscore";
 import {check} from "meteor/check";
 
+let recipes = {
+  'hamburger': ['cooked meat', 'buns'],
+  'cheeseburger': ['cooked meat', 'sliced cheese', 'buns']
+};
+
 // Common stage settings. Stages will
 let stageCommon = {
   // Amount of time in seconds the players have before the game automatically starts
@@ -20,19 +25,23 @@ let stages = [
     stageId: startingStage,
     matchDuration: 140,
     playerCount: 2,
+    orderWinCount: 7,
     // Prefabs that correspond to recipes / objects that must be dropped in the delivery point.
     // The client should show in the tutorial view the necessary tutorialization in the tutorial view
-    // If the order hasn't been fulfilled after warnTime seconds, the client should shake the hamburger order
+    // If the order hasn't been fulfilled after warnDuration seconds, the client should shake the hamburger order
     // The order fails after 30s and the players get a demerit (may slow down the game as you underperform)
     orders: [
-      {item: 'hamburger', insertOrder: 8, warnTime: 12, failTime: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertOrder: 16, warnTime: 12, failTime: 30, playerIds: [0, 1]},
-      {item: 'cheeseburger', insertOrder: 24, warnTime: 12, failTime: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertOrder: 64, warnTime: 12, failTime: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertOrder: 78, warnTime: 12, failTime: 30, playerIds: [0, 1]},
-      {item: 'cheeseburger', insertOrder: 96, warnTime: 12, failTime: 30, playerIds: [0, 1]},
-      {item: 'cheeseburger', insertOrder: 108, warnTime: 12, failTime: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertOrder: 120, warnTime: 12, failTime: 30, playerIds: [0, 1]}
+      {item: 'hamburger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertionTime: 16, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'cheeseburger', insertionTime: 24, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'cheeseburger', insertionTime: 24, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertionTime: 64, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertionTime: 64, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertionTime: 78, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'cheeseburger', insertionTime: 96, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'cheeseburger', insertionTime: 108, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'hamburger', insertionTime: 120, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]}
     ],
     // The number of orders the players can fail until they lose
     failsToLose: 4,
@@ -55,9 +64,9 @@ let stages = [
     matchDuration: 20,
     playerCount: 2,
     orders: [
-      {item: 'cheeseburger', insertOrder: 0, warnTime: 12, failTime: 30},
-      {item: 'cheeseburger', insertOrder: 0, warnTime: 12, failTime: 30},
-      {item: 'cheeseburger', insertOrder: 8, warnTime: 12, failTime: 30},
+      {item: 'cheeseburger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'cheeseburger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'cheeseburger', insertionTime: 8, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
     ],
     // The number of orders the players can fail until they lose
     failsToLose: 4,
@@ -80,16 +89,16 @@ let stages = [
     playerCount: 3,
     matchDuration: 140,
     orders: [
-      {item: 'hamburger', insertOrder: 8, warnTime: 12, failTime: 30},
-      {item: 'hamburger', insertOrder: 16, warnTime: 12, failTime: 30},
-      {item: 'hamburger', insertOrder: 20, warnTime: 12, failTime: 30},
-      {item: 'cheeseburger', insertOrder: 24, warnTime: 12, failTime: 30},
-      {item: 'hamburger', insertOrder: 64, warnTime: 12, failTime: 30},
-      {item: 'hamburger', insertOrder: 78, warnTime: 12, failTime: 30},
-      {item: 'cheeseburger', insertOrder: 96, warnTime: 12, failTime: 30},
-      {item: 'cheeseburger', insertOrder: 96, warnTime: 12, failTime: 30},
-      {item: 'cheeseburger', insertOrder: 108, warnTime: 12, failTime: 30},
-      {item: 'hamburger', insertOrder: 120, warnTime: 12, failTime: 30}
+      {item: 'hamburger', insertionTime: 8, warnDuration: 12, failureDuration: 30, playerIds: [0]},
+      {item: 'hamburger', insertionTime: 16, warnDuration: 12, failureDuration: 30, playerIds: [1]},
+      {item: 'hamburger', insertionTime: 20, warnDuration: 12, failureDuration: 30, playerIds: [2]},
+      {item: 'cheeseburger', insertionTime: 24, warnDuration: 12, failureDuration: 30, playerIds: [0]},
+      {item: 'hamburger', insertionTime: 64, warnDuration: 12, failureDuration: 30, playerIds: [1]},
+      {item: 'hamburger', insertionTime: 78, warnDuration: 12, failureDuration: 30, playerIds: [2]},
+      {item: 'cheeseburger', insertionTime: 96, warnDuration: 12, failureDuration: 30, playerIds: [0]},
+      {item: 'cheeseburger', insertionTime: 96, warnDuration: 12, failureDuration: 30, playerIds: [1]},
+      {item: 'cheeseburger', insertionTime: 108, warnDuration: 12, failureDuration: 30, playerIds: [2]},
+      {item: 'hamburger', insertionTime: 120, warnDuration: 12, failureDuration: 30, playerIds: [0]}
     ],
     // The number of orders the players can fail until they lose
     failsToLose: 3,
@@ -231,28 +240,38 @@ Meteor.methods({
       values: [stage.matchDuration]
     });
 
-    /*
-    // Set up the order timeline
-    // If the players are at their max orders when we reach the next order item, increment *all* the order time
-    // positions by 1. Otherwise, insert the order entity with visibility to the specified players.
-    let time = 0;
-    // Clone the orders 1 level
-    let ordersTimeline = _.map(stage.orders, _.clone);
-    let ordersPending = [];
-    let thisMatchClock = Meteor.setInterval(function () {
-      time += 1;
-      ordersTimeline = _.sortBy(ordersTimeline, o => o.insertOrder);
-      let eligibleOrders = _.filter(ordersTimeline, o => o.insertOrder <= time);
-      if (Entities.find({matchId:matchId,}) >= stage.maxOrders) {
-        // Shift
-        _.forEach(eligibleOrders, o => o.insertOrder += 2);
-      } else {
+    // For now, just add all the orders and let the client take care of interpreting their times.
+    _.forEach(stage.orders, order => {
+      Entities.insert({
+        matchId: matchId,
+        prefab: 'order',
+        playerIds: order.playerIds,
+        values: [order.insertionTime, order.warnDuration, order.failureDuration],
+        texts: [order.item].concat(recipes[order.item]),
+        // [finished, failed]
+        bools: [false, false]
+      });
+    });
 
-      }
-    }, 1000);
-    */
     // TODO: Deal with match changes when any players disconnect
 
     return matchId;
+  },
+
+  'setBool': function (entityId, boolIndex, bool) {
+    return Entities.update(entityId, {$set: {[`bools.${boolIndex}`]: bool}});
+  },
+
+  'setBools': function (entityId, bools) {
+    return Entities.update(entityId, {$set: {bools: bools}});
+  },
+
+  /**
+   * Ends the specified game
+   * @param matchId
+   */
+  'endGame': function (matchId) {
+    // Remove all entities
+    Entities.remove({matchId: matchId});
   }
 });

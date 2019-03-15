@@ -26,7 +26,7 @@ let victoryStage = 'victory';
 let stages = [
   {
     stageId: startingStage,
-    matchDuration: 10,
+    matchDuration: 140,
     playerCount: 2,
     orderWinCount: 7,
     // Prefabs that correspond to recipes / objects that must be dropped in the delivery point.
@@ -202,7 +202,7 @@ function startStage(matchId, playerIds, stage) {
   Entities.remove({matchId: matchId});
 
   // First, show the tutorialization screen with the timer
-  let tutorialDuration = 16;
+  let tutorialDuration = 8;
   Entities.insert({
     sceneId: 'tutorialScreen',
     matchId: matchId,

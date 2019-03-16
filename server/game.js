@@ -5,8 +5,8 @@ import {check} from "meteor/check";
 let matchResources = {};
 
 let recipes = {
-  'hamburger': ['cooked meat', 'buns'],
-  'cheeseburger': ['cooked meat', 'sliced cheese', 'buns']
+  'HamBurger': ['CookedMeat', 'Bun'],
+  'CheeseBurger': ['CookedMeat', 'SliceOfCheese', 'Bun']
 };
 
 // Common stage settings. Stages will
@@ -34,17 +34,17 @@ let stages = [
     // If the order hasn't been fulfilled after warnDuration seconds, the client should shake the hamburger order
     // The order fails after 30s and the players get a demerit (may slow down the game as you underperform)
     orders: [
-      {item: 'hamburger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertionTime: 16, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'cheeseburger', insertionTime: 24, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'cheeseburger', insertionTime: 24, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertionTime: 64, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertionTime: 64, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertionTime: 78, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'cheeseburger', insertionTime: 96, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'cheeseburger', insertionTime: 108, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'hamburger', insertionTime: 120, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]}
+      {item: 'HamBurger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'HamBurger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'HamBurger', insertionTime: 16, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'CheeseBurger', insertionTime: 24, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'CheeseBurger', insertionTime: 24, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'HamBurger', insertionTime: 64, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'HamBurger', insertionTime: 64, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'HamBurger', insertionTime: 78, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'CheeseBurger', insertionTime: 96, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'CheeseBurger', insertionTime: 108, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'HamBurger', insertionTime: 120, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]}
     ],
     // The number of orders the players can fail until they lose
     failsToLose: 4,
@@ -67,9 +67,9 @@ let stages = [
     matchDuration: 20,
     playerCount: 2,
     orders: [
-      {item: 'cheeseburger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'cheeseburger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
-      {item: 'cheeseburger', insertionTime: 8, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'CheeseBurger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'CheeseBurger', insertionTime: 0, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
+      {item: 'CheeseBurger', insertionTime: 8, warnDuration: 12, failureDuration: 30, playerIds: [0, 1]},
     ],
     // The number of orders the players can fail until they lose
     failsToLose: 4,
@@ -92,16 +92,16 @@ let stages = [
     playerCount: 3,
     matchDuration: 140,
     orders: [
-      {item: 'hamburger', insertionTime: 8, warnDuration: 12, failureDuration: 30, playerIds: [0]},
-      {item: 'hamburger', insertionTime: 16, warnDuration: 12, failureDuration: 30, playerIds: [1]},
-      {item: 'hamburger', insertionTime: 20, warnDuration: 12, failureDuration: 30, playerIds: [2]},
-      {item: 'cheeseburger', insertionTime: 24, warnDuration: 12, failureDuration: 30, playerIds: [0]},
-      {item: 'hamburger', insertionTime: 64, warnDuration: 12, failureDuration: 30, playerIds: [1]},
-      {item: 'hamburger', insertionTime: 78, warnDuration: 12, failureDuration: 30, playerIds: [2]},
-      {item: 'cheeseburger', insertionTime: 96, warnDuration: 12, failureDuration: 30, playerIds: [0]},
-      {item: 'cheeseburger', insertionTime: 96, warnDuration: 12, failureDuration: 30, playerIds: [1]},
-      {item: 'cheeseburger', insertionTime: 108, warnDuration: 12, failureDuration: 30, playerIds: [2]},
-      {item: 'hamburger', insertionTime: 120, warnDuration: 12, failureDuration: 30, playerIds: [0]}
+      {item: 'HamBurger', insertionTime: 8, warnDuration: 12, failureDuration: 30, playerIds: [0]},
+      {item: 'HamBurger', insertionTime: 16, warnDuration: 12, failureDuration: 30, playerIds: [1]},
+      {item: 'HamBurger', insertionTime: 20, warnDuration: 12, failureDuration: 30, playerIds: [2]},
+      {item: 'CheeseBurger', insertionTime: 24, warnDuration: 12, failureDuration: 30, playerIds: [0]},
+      {item: 'HamBurger', insertionTime: 64, warnDuration: 12, failureDuration: 30, playerIds: [1]},
+      {item: 'HamBurger', insertionTime: 78, warnDuration: 12, failureDuration: 30, playerIds: [2]},
+      {item: 'CheeseBurger', insertionTime: 96, warnDuration: 12, failureDuration: 30, playerIds: [0]},
+      {item: 'CheeseBurger', insertionTime: 96, warnDuration: 12, failureDuration: 30, playerIds: [1]},
+      {item: 'CheeseBurger', insertionTime: 108, warnDuration: 12, failureDuration: 30, playerIds: [2]},
+      {item: 'HamBurger', insertionTime: 120, warnDuration: 12, failureDuration: 30, playerIds: [0]}
     ],
     // The number of orders the players can fail until they lose
     failsToLose: 3,
@@ -202,7 +202,7 @@ function startStage(matchId, playerIds, stage) {
   Entities.remove({matchId: matchId});
 
   // First, show the tutorialization screen with the timer
-  let tutorialDuration = 8;
+  let tutorialDuration = 2;
   Entities.insert({
     sceneId: 'tutorialScreen',
     matchId: matchId,
@@ -283,6 +283,8 @@ function startStage(matchId, playerIds, stage) {
         bools: [false, false]
       });
     });
+
+
   }, tutorialDuration * 1000);
   thisMatchResources.timers.push(tutorialTimerId);
 }
@@ -385,5 +387,20 @@ Meteor.methods({
   'endGame': function (matchId) {
     // Remove all entities
     Entities.remove({matchId: matchId});
+  },
+
+  /**
+   * Instantiates a prefab in the given player's scene. Creates a teleported entity for this purpose.
+   * @param matchId
+   * @param toPlayerId
+   * @param prefabToInstantiate
+   */
+  'teleport': function (matchId, toPlayerId, prefabToInstantiate) {
+    return Entities.insert({
+      matchId: matchId,
+      prefab: 'Teleported Entity',
+      texts: [prefabToInstantiate],
+      playerIds: [toPlayerId],
+    });
   }
 });
